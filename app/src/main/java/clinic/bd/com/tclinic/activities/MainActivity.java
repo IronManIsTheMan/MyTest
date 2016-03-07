@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Bmob.initialize(this, "bb232aa97e59bbc0b6d8dc5d663701ec");
+        Bmob.initialize(this, "");
 
         loginBtn = (Button) findViewById(R.id.login);
         loginBtn.setOnClickListener(new View.OnClickListener() {
