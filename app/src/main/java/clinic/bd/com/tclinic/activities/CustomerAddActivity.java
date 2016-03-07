@@ -15,7 +15,7 @@ import clinic.bd.com.tclinic.bean.CustomerBean;
 import cn.bmob.v3.listener.SaveListener;
 
 
-public class CustomerAddActivity extends Activity {
+public class CustomerAddActivity extends BaseActivity {
 
     private EditText customerName;
     private EditText age;

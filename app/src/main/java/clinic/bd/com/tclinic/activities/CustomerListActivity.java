@@ -1,9 +1,12 @@
 package clinic.bd.com.tclinic.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,7 +24,7 @@ import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.listener.FindListener;
 
 
-public class CustomerListActivity extends Activity {
+public class CustomerListActivity extends BaseActivity {
 
     private ListView customerListView;
     private List<CustomerBean> customerList = new ArrayList<CustomerBean>();
@@ -69,7 +72,6 @@ public class CustomerListActivity extends Activity {
                 customerList.clear();
                 customerList.addAll(object);
                 adapter.notifyDataSetChanged();
-
             }
 
             @Override
@@ -102,5 +104,21 @@ public class CustomerListActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Are you sure to exit?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    CustomerListActivity.this.finish();
+                                }})
+                    .setNegativeButton("No", null)
+                    .show();
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }
