@@ -66,7 +66,7 @@ public class CustomerModifyActivity extends BaseActivity {
                                 Toast.makeText(CustomerModifyActivity.this, "Fail to update Customer Info. Error = " + s, Toast.LENGTH_SHORT).show();
                             }
                         });
-                    Log.e("Clinic", "Customer = " + customerBean);
+                    Log.d("Clinic", "Customer = " + customerBean);
                 }
             }
         });

@@ -63,7 +63,7 @@ public class CustomerAddActivity extends BaseActivity {
                             Toast.makeText(CustomerAddActivity.this, "Fail to Customer Info. Error = " + s, Toast.LENGTH_SHORT).show();
                         }
                     });
-                    Log.e("Clinic", "Customer = " + customerBean);
+                    Log.d("Clinic", "Customer = " + customerBean);
                 }
             }
         });

@@ -1,0 +1,8 @@
+<resources>
+
+    <color name="white">@android:color/white</color>
+    <color name="default_text_color">#313131</color>
+	<color name="default_text_lable">#333333</color>
+
+    
+</resources>
