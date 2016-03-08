@@ -1,6 +1,6 @@
 package clinic.bd.com.tclinic.activities;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -12,7 +12,8 @@ import android.widget.Toast;
 
 import clinic.bd.com.tclinic.R;
 import clinic.bd.com.tclinic.bean.CustomerBean;
-import cn.bmob.v3.listener.SaveListener;
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.listener.GetListener;
 import cn.bmob.v3.listener.UpdateListener;
 
 
@@ -32,7 +33,9 @@ public class CustomerModifyActivity extends BaseActivity {
 
         customerBean = (CustomerBean) this.getIntent().getSerializableExtra("customer");
 
-        findAndInitViews(customerBean);
+        findViews();
+
+        refreshViews(customerBean);
 
         Button btn = (Button) findViewById(R.id.save);
         btn.setOnClickListener(new View.OnClickListener() {
@@ -55,30 +58,54 @@ public class CustomerModifyActivity extends BaseActivity {
                     }
 
                     customerBean.update(CustomerModifyActivity.this, customerBean.getObjectId(),
-                        new UpdateListener() {
-                            @Override
-                            public void onSuccess() {
-                                Toast.makeText(CustomerModifyActivity.this, "Customer Info is updated.", Toast.LENGTH_SHORT).show();
-                            }
+                            new UpdateListener() {
+                                @Override
+                                public void onSuccess() {
+                                    Toast.makeText(CustomerModifyActivity.this, "Customer Info is updated.", Toast.LENGTH_SHORT).show();
 
-                            @Override
-                            public void onFailure(int i, String s) {
-                                Toast.makeText(CustomerModifyActivity.this, "Fail to update Customer Info. Error = " + s, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                                    Intent resultData = new Intent();
+                                    Bundle bdle = new Bundle();
+                                    bdle.putSerializable("bean", customerBean);
+                                    resultData.putExtras(bdle);
+                                    setResult(0, resultData);
+                                }
+
+                                @Override
+                                public void onFailure(int i, String s) {
+                                    Toast.makeText(CustomerModifyActivity.this, "Fail to update Customer Info. Error = " + s, Toast.LENGTH_SHORT).show();
+                                }
+                            });
                     Log.d("Clinic", "Customer = " + customerBean);
                 }
             }
         });
+
+        BmobQuery<CustomerBean> query = new BmobQuery<CustomerBean>();
+        query.getObject(this, customerBean.getObjectId(), new GetListener<CustomerBean>() {
+
+            @Override
+            public void onSuccess(CustomerBean object) {
+                refreshViews(object);
+            }
+
+            @Override
+            public void onFailure(int code, String arg0) {
+            }
+
+        });
     }
 
-    private void findAndInitViews(CustomerBean customerBean) {
+    private void findViews() {
         customerName = (EditText) findViewById(R.id.customer_name);
         age = (EditText) findViewById(R.id.customer_age);
         telNumber = (EditText) findViewById(R.id.customer_tel);
         genderGroup = (RadioGroup) findViewById(R.id.genderGroup);
         customerDesp = (EditText) findViewById(R.id.customer_desp);
 
+
+    }
+
+    private void refreshViews(CustomerBean customerBean) {
         if (customerBean != null) {
             customerName.setText(customerBean.getName());
             age.setText(String.valueOf(customerBean.getAge()));

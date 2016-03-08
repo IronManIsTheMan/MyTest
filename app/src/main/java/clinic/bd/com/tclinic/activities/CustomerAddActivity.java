@@ -1,6 +1,7 @@
 package clinic.bd.com.tclinic.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -36,7 +37,7 @@ public class CustomerAddActivity extends BaseActivity {
             public void onClick(View v) {
 
                 if (validateAllFields()) {
-                    CustomerBean customerBean = new CustomerBean();
+                    final CustomerBean customerBean = new CustomerBean();
                     customerBean.setName(customerName.getText().toString());
                     customerBean.setAge(Integer.valueOf(age.getText().toString()));
                     if (genderGroup.getCheckedRadioButtonId() == R.id.radioFemale) {
@@ -56,6 +57,12 @@ public class CustomerAddActivity extends BaseActivity {
                         public void onSuccess() {
                             Toast.makeText(CustomerAddActivity.this, "Customer Info is saved.", Toast.LENGTH_SHORT).show();
                             clearEditTextViews();
+
+                            Intent resultData = new Intent();
+                            Bundle bdle = new Bundle();
+                            bdle.putSerializable("bean", customerBean);
+                            resultData.putExtras(bdle);
+                            setResult(1, resultData);
                         }
 
                         @Override

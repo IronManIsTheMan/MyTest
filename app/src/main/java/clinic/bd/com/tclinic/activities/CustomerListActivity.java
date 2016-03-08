@@ -15,7 +15,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import clinic.bd.com.tclinic.R;
 import clinic.bd.com.tclinic.adapter.CustomerListAdapter;
@@ -23,12 +25,13 @@ import clinic.bd.com.tclinic.bean.CustomerBean;
 import clinic.bd.com.tclinic.view.FooterView;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.GetListener;
 
 
 public class CustomerListActivity extends BaseActivity implements AbsListView.OnScrollListener {
 
     private ListView customerListView;
-    private List<CustomerBean> customerList = new ArrayList<CustomerBean>();
+    private List<CustomerBean> customerList = new ArrayList<>();
     private CustomerListAdapter adapter;
     private FooterView footerView;
     private static final int PAGE_LIMIT = 20;
@@ -37,6 +40,9 @@ public class CustomerListActivity extends BaseActivity implements AbsListView.On
     private int visibleLastIndex = 0;   //最后的可视项索引
     private boolean needToQueryMore = true;
     private View loadingPage;
+    private final static int MODIFY_ACTIVITY = 0;
+    private final static int CREATE_ACTIVITY = 1;
+    private boolean refreshForCreate = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +77,7 @@ public class CustomerListActivity extends BaseActivity implements AbsListView.On
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("customer", customerBean);
                 intent.putExtras(bundle);
-                startActivity(intent);
+                startActivityForResult(intent, MODIFY_ACTIVITY);
             }
         });
 
@@ -86,29 +92,22 @@ public class CustomerListActivity extends BaseActivity implements AbsListView.On
 
         needToQueryMore = true;
 
-        loadingPage.setVisibility(View.VISIBLE);
-
-        queryListData();
+        if (curLoadedNum == 0 || refreshForCreate) {
+            loadingPage.setVisibility(View.VISIBLE);
+            queryListData();
+        }
     }
 
     private void queryListData() {
         BmobQuery<CustomerBean> query = new BmobQuery<CustomerBean>();
-        //查询playerName叫“比目”的数据
-//        query.addWhereEqualTo("playerName", "比目");
-        //返回50条数据，如果不加上这条语句，默认返回10条数据
         query.setLimit(PAGE_LIMIT);
         query.setSkip(curLoadedNum);
-        //执行查询方法
         query.findObjects(this, new FindListener<CustomerBean>() {
             @Override
             public void onSuccess(List<CustomerBean> object) {
                 Log.d("Clinic", "Total Data = " + object.size());
                 customerList.addAll(object);
                 adapter.notifyDataSetChanged();
-
-                if (curLoadedNum > 0) {
-                    customerListView.setSelection(visibleLastIndex);
-                }
 
                 curLoadedNum += object.size();
 
@@ -130,6 +129,28 @@ public class CustomerListActivity extends BaseActivity implements AbsListView.On
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == MODIFY_ACTIVITY) {
+            CustomerBean modifiedBean = (CustomerBean) data.getSerializableExtra("bean");
+            for (CustomerBean bean : customerList) {
+                if (bean.getObjectId().equals(modifiedBean.getObjectId())) {
+                    bean.updateWithNewObject(modifiedBean);
+                    break;
+                }
+            }
+        } else if (requestCode == CREATE_ACTIVITY) {
+//            CustomerBean modifiedBean = (CustomerBean) data.getSerializableExtra("bean");
+//            customerList.add(modifiedBean);
+            refreshForCreate = true;
+        }
+
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -147,7 +168,7 @@ public class CustomerListActivity extends BaseActivity implements AbsListView.On
         if (id == R.id.action_add) {
             Intent intent = new Intent();
             intent.setClass(CustomerListActivity.this, CustomerAddActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, CREATE_ACTIVITY);
             return true;
         }
 
