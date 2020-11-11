@@ -10,6 +10,7 @@ public class CustomerBean extends BmobObject {
     private int age;
     private String telNumber;
     private String desp;
+    private String title;
 
     public String getName() {
         return name;
